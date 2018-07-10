@@ -2,9 +2,9 @@ package com.eugenetereshkov.testresultant.ui.common
 
 import android.os.Bundle
 import android.support.annotation.LayoutRes
-import android.support.v7.app.AppCompatActivity
+import com.arellomobile.mvp.MvpAppCompatActivity
 
-abstract class BaseActivity : AppCompatActivity() {
+abstract class BaseActivity : MvpAppCompatActivity() {
 
     @get:LayoutRes
     protected abstract val idResLayout: Int
