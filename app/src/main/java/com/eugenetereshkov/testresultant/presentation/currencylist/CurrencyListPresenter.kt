@@ -28,7 +28,10 @@ class CurrencyListPresenter @Inject constructor(
     private var isRefreshing = false
 
     override fun onFirstViewAttach() {
-        if (isFirstLoadingData) viewState.showEmptyProgress(true)
+        if (isFirstLoadingData) {
+            isRefreshing = true
+            viewState.showEmptyProgress(true)
+        }
 
         Observable.interval(0L, PERIOD_UPDATE, TimeUnit.SECONDS)
                 .flatMapSingle { currencyRepository.getCurrencyList() }
@@ -46,18 +49,17 @@ class CurrencyListPresenter @Inject constructor(
             currencyRepository.getCurrencyList()
                     .doOnSubscribe {
                         isRefreshing = true
-                        viewState.showRefreshProgress(!isFirstLoadingData)
+                        viewState.showRefreshProgress(true)
                     }
-                    .doAfterTerminate {
-                        isRefreshing = false
-                        viewState.showRefreshProgress(false)
-                    }
+                    .doAfterTerminate { viewState.showRefreshProgress(false) }
                     .subscribe(this::setData, this::handleError)
                     .bindTo(disposable)
         }
     }
 
     private fun setData(data: List<Currency>) {
+        isRefreshing = false
+
         if (isFirstLoadingData) {
             viewState.showEmptyProgress(false)
             isFirstLoadingData = false
