@@ -10,7 +10,6 @@ class MainActivity : BaseActivity() {
     override val idResLayout: Int = R.layout.activity_main
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
 
         if (savedInstanceState == null) initMainScreen()

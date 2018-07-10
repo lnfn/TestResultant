@@ -4,7 +4,9 @@
 
     <item android:drawable="@color/colorPrimary" />
 
-    <item
-        android:drawable="@drawable/ic_launcher_foreground"
-        android:gravity="center" />
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/currency_eur" />
+    </item>
 </layer-list>
