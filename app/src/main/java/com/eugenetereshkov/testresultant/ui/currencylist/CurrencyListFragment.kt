@@ -2,6 +2,8 @@ package com.eugenetereshkov.testresultant.ui.currencylist
 
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.Toolbar
+import android.view.MenuItem
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.widget.toast
@@ -39,13 +41,28 @@ class CurrencyListFragment : BaseFragment(), CurrencyListView {
                     }
 
     private val adapter by lazy { CurrencyListAdapter() }
+    private val menuItemClickListListener by lazy {
+        Toolbar.OnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_refresh -> {
+                    presenter.refreshData()
+                    return@OnMenuItemClickListener true
+                }
+            }
+            false
+        }
+    }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
         toolbar.apply {
             title = getString(R.string.currency_list)
+            inflateMenu(R.menu.menu_main)
+            setOnMenuItemClickListener(menuItemClickListListener)
         }
+
+        swipeRefresh.setOnRefreshListener { presenter.refreshData() }
 
         recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -63,6 +80,10 @@ class CurrencyListFragment : BaseFragment(), CurrencyListView {
     override fun showEmptyProgress(show: Boolean) {
         recyclerView.isGone = show
         progressBar.isVisible = show
+    }
+
+    override fun showRefreshProgress(show: Boolean) {
+        swipeRefresh.isRefreshing = show
     }
 
     override fun showMessage(message: String) {

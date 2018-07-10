@@ -7,7 +7,6 @@ import com.eugenetereshkov.testresultant.entity.Currency
 import com.eugenetereshkov.testresultant.extension.bindTo
 import com.eugenetereshkov.testresultant.model.repository.ICurrencyListRepository
 import com.eugenetereshkov.testresultant.model.system.ResourceManager
-import com.eugenetereshkov.testresultant.model.system.SchedulersProvider
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import java.util.concurrent.TimeUnit
@@ -17,8 +16,7 @@ import javax.inject.Inject
 @InjectViewState
 class CurrencyListPresenter @Inject constructor(
         private val currencyRepository: ICurrencyListRepository,
-        private val resourceManager: ResourceManager,
-        private val schedulersProvider: SchedulersProvider
+        private val resourceManager: ResourceManager
 ) : MvpPresenter<CurrencyListView>() {
 
     private companion object {
@@ -27,6 +25,7 @@ class CurrencyListPresenter @Inject constructor(
 
     private val disposable = CompositeDisposable()
     private var isFirstLoadingData = true
+    private var isRefreshing = false
 
     override fun onFirstViewAttach() {
         if (isFirstLoadingData) viewState.showEmptyProgress(true)
@@ -42,9 +41,21 @@ class CurrencyListPresenter @Inject constructor(
         super.onDestroy()
     }
 
-    fun refreshData() = currencyRepository.getCurrencyList()
-            .subscribe(this::setData, this::handleError)
-            .bindTo(disposable)
+    fun refreshData() {
+        if (!isRefreshing) {
+            currencyRepository.getCurrencyList()
+                    .doOnSubscribe {
+                        isRefreshing = true
+                        viewState.showRefreshProgress(!isFirstLoadingData)
+                    }
+                    .doAfterTerminate {
+                        isRefreshing = false
+                        viewState.showRefreshProgress(false)
+                    }
+                    .subscribe(this::setData, this::handleError)
+                    .bindTo(disposable)
+        }
+    }
 
     private fun setData(data: List<Currency>) {
         if (isFirstLoadingData) {

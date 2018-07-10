@@ -15,4 +15,5 @@ interface CurrencyListView : MvpView {
 
     fun setData(data: List<Currency>)
     fun showEmptyProgress(show: Boolean)
+    fun showRefreshProgress(show: Boolean)
 }
